@@ -1,7 +1,7 @@
 This is my first git repo. Using it as a place to store various script and modules that I create in my free time.
 
 DSC Resource KevMar_WindowsUpdate
-<#
+
 .SYNOPSIS
 Configures Automatic Updates for a system.
 
@@ -34,7 +34,8 @@ Name of the computer group to which the computer belongs.
         
 .PARAMETER ScheduledInstallTime
 Hour of the day from 0 to 23
-#>
+
+
 
 Modules should be copied into c:\program files\WindowsPowershell
 
