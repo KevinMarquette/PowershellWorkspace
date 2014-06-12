@@ -8,7 +8,7 @@ Configuration ConfigExample
        KevMar_WindowsUpdate WindowsUpdates
        {
            AutomaticUpdate = $true;
-           AutoUpdateOptions = "Notify";
+           AutoUpdateOptions = "Install";
            UseWUServer = $true;
            WUServer= "http://ServerName"                      
            ScheduledInstallDay = "Every day";
