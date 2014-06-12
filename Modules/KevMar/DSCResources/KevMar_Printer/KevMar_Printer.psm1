@@ -14,19 +14,21 @@ function Get-TargetResource
 	)
     
     $printer = Get-WmiObject Win32_Printer | Where-Object{$_.Name -eq $Name}	
-
-    @{
-        Name = $printer.$Name
-        DriverName = $printer.DriverName
-        PrinterIP = $printer.PortName
-        PortName = $printer.PortName
-        isShared = $printer.Shared
-        ShareName = $printer.ShareName
-        Location = $printer.Location
-        Comment= $printer.Comment
-        DeviceID = $printer.DeviceID
+    if($printer){
+       return @{
+            Name = $printer.$Name
+            DriverName = $printer.DriverName
+            PrinterIP = $printer.PortName
+            PortName = $printer.PortName
+            isShared = $printer.Shared
+            ShareName = $printer.ShareName
+            Location = $printer.Location
+            Comment= $printer.Comment
+            DeviceID = $printer.DeviceID
+        }
+    } else {
+        return $null;
     }
-
 }
 
 ######################################################################## 
@@ -65,7 +67,11 @@ function Set-TargetResource
         [string] $Comment="",
 
         # Device ID
-        [string] $DeviceID
+        [string] $DeviceID,
+
+        # Should the printer be created or deleted
+		[ValidateSet("Present","Absent")]
+		[String]$Ensure = "Present"
 	)
 
 
@@ -126,16 +132,36 @@ function Test-TargetResource
         [string] $Comment="",
 
         # Device ID
-        [string] $DeviceID
+        [string] $DeviceID,
+
+        # Should the printer be created or deleted
+		[ValidateSet("Present","Absent")]
+		[String]$Ensure = "Present"
 	)
-
     
-}
-#######################################################################
-# Validation functions (Not exported)
-#######################################################################
+    $printer = Get-TargetResource -Name $Name
+    $testResult = $false
 
- 
+    if($Ensure -eq "Present"){
+        if($printer -eq $null) { return $false}
+        if($printer.DriverName -ne  $DriverName){ return $false}
+        if($printer.PortName -ne $PortName){return $false}
+        if($printer.isShared -ne $isShared){return $false}
+        if($printer.ShareName -ne $ShareName){return $false}
+        if($printer.Location -ne $Location){return $false}
+        if($printer.Comment -ne $Comment){return $false}
+        if($printer.DeviceID -ne $DeviceID){return $false}
+    }
+    else # $Ensure -eq "Absent"
+    {
+        if($printer -eq $null){
+            return $true
+        } 
+    }
+    
+    $testResult
+}
+
 
 
 Export-ModuleMember -Function *-TargetResource
