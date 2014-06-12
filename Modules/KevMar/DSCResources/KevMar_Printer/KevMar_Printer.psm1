@@ -77,33 +77,36 @@ function Set-TargetResource
     $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
 
     if($Ensure -eq "Present"){
+        $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
         
+        if($port -eq $null){
+            Write-Verbose "Creating new printer port"
+            $port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
+            $port.Protocol=1
+            $port.SNMPEnabled=$false
+            $port.Name= $Portname            
+        }                
+        $port.HostAddress= $PrinterIP
+        Write-Verbose "Saving changes to printer port: $PortName"
+        $port.Put()
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            $port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
-            $port.Name= $Portname
-            $port.SNMPEnabled=$false
-            $port.Protocol=1
-            $port.HostAddress= $PrinterIP
-            $port.Put()
-
             $print = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
-            $print.drivername = $DriverName
-            $print.PortName = $PortName
-            if($isShared){
-                $print.Shared = $isShared
-                $print.Sharename = $ShareName
-            }
-            $print.Location = $Location
-            $print.Comment = $Comment
-            $print.DeviceID = $DeviceID
-            $print.Put()
         }
-        else 
-        {
-            Write-Verbose "Printer already exists, changing values"
+
+        $print.drivername = $DriverName
+        $print.PortName = $PortName
+        if($isShared){
+            $print.Shared = $isShared
+            $print.Sharename = $ShareName
         }
+        $print.Location = $Location
+        $print.Comment = $Comment
+        $print.DeviceID = $DeviceID
+
+        Write-Verbose "Saving changes to printer: $Name"
+        $print.Put()       
     }
     else #Absent
     {
