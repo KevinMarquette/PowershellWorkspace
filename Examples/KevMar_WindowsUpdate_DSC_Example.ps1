@@ -1,4 +1,5 @@
-﻿
+﻿#KevMar_WindowsUpdate is a custom DSC Resource
+
 Configuration ConfigExample
 {
    Import-DscResource -Name KevMar_WindowsUpdate
