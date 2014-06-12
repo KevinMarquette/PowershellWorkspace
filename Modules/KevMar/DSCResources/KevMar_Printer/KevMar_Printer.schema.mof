@@ -1,0 +1,10 @@
+
+[ClassVersion("1.0.0"), FriendlyName("Printer")] 
+class KevMar_Printer : OMI_BaseResource
+{
+    [key] string Name;
+
+    [write] string DomainName;
+
+    [write] string WorkGroupName;
+};
