@@ -74,26 +74,44 @@ function Set-TargetResource
 		[String]$Ensure = "Present"
 	)
 
+    $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
 
+    if($Ensure -eq "Present"){
+        
 
-    $port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
-    $port.Name= $Portname
-    $port.SNMPEnabled=$false
-    $port.Protocol=1
-    $port.HostAddress= $PrinterIP
-    $port.Put()
+        if($printer -eq $null){
+            Write-Verbose "Printer does not exist, creating new one."
+            $port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
+            $port.Name= $Portname
+            $port.SNMPEnabled=$false
+            $port.Protocol=1
+            $port.HostAddress= $PrinterIP
+            $port.Put()
 
-    $print = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
-    $print.drivername = $DriverName
-    $print.PortName = $PortName
-    if($isShared){
-        $print.Shared = $isShared
-        $print.Sharename = $ShareName
+            $print = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
+            $print.drivername = $DriverName
+            $print.PortName = $PortName
+            if($isShared){
+                $print.Shared = $isShared
+                $print.Sharename = $ShareName
+            }
+            $print.Location = $Location
+            $print.Comment = $Comment
+            $print.DeviceID = $DeviceID
+            $print.Put()
+        }
+        else 
+        {
+            Write-Verbose "Printer already exists, changing values"
+        }
     }
-    $print.Location = $Location
-    $print.Comment = $Comment
-    $print.DeviceID = $DeviceID
-    $print.Put()
+    else #Absent
+    {
+        Write-Verbose "Removing Printer: $name"
+        $printer.Pause()
+        $printer.CancelAllJobs()
+        $printer.Delete()
+    }
 }
 
 #######################################################################
@@ -139,10 +157,13 @@ function Test-TargetResource
 		[String]$Ensure = "Present"
 	)
     
+    Write-Verbose "Checking for printer: $Name"
     $printer = Get-TargetResource -Name $Name
 
     if($Ensure -eq "Present"){
         if($printer -eq $null) { return $false}
+
+        Write-Verbose "Printer exists, validating other values"
         if($printer.DriverName -ne  $DriverName){ return $false}
         if($printer.PortName -ne $PortName){return $false}
         if($printer.isShared -ne $isShared){return $false}
@@ -152,6 +173,7 @@ function Test-TargetResource
         if($printer.DeviceID -ne $DeviceID){return $false}
 
         # at this point, everything matches
+        Write-Verbose "Passed all validation checks"
         return $true
     }
     else # $Ensure -eq "Absent"
@@ -161,7 +183,6 @@ function Test-TargetResource
         } 
     }
     
-    # 
     return $false
 }
 
