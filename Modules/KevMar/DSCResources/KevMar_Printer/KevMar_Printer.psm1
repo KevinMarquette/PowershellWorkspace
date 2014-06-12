@@ -140,7 +140,6 @@ function Test-TargetResource
 	)
     
     $printer = Get-TargetResource -Name $Name
-    $testResult = $false
 
     if($Ensure -eq "Present"){
         if($printer -eq $null) { return $false}
@@ -151,6 +150,9 @@ function Test-TargetResource
         if($printer.Location -ne $Location){return $false}
         if($printer.Comment -ne $Comment){return $false}
         if($printer.DeviceID -ne $DeviceID){return $false}
+
+        # at this point, everything matches
+        return $true
     }
     else # $Ensure -eq "Absent"
     {
@@ -159,7 +161,8 @@ function Test-TargetResource
         } 
     }
     
-    $testResult
+    # 
+    return $false
 }
 
 
