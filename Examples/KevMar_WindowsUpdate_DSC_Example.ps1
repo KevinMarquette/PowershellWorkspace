@@ -2,7 +2,7 @@
 
 Configuration ConfigExample
 {
-   Import-DscResource -Name KevMar_WindowsUpdate
+   Import-DscResource -ModuleName KevMar
    Node localhost
    {
        KevMar_WindowsUpdate WindowsUpdates
