@@ -36,6 +36,7 @@ function Get-TargetResource
 ########################################################################
 function Set-TargetResource
 {
+    
     [CmdletBinding()]
 	param
 	(	
@@ -44,11 +45,9 @@ function Set-TargetResource
         [string] $Name,
 
         # Name of driver
-        [parameter(Mandatory)]
         [string] $DriverName,
 
         # IP address of printer
-        [parameter(Mandatory)]
         [string] $PrinterIP,
 
         # Name of printer port
@@ -136,11 +135,9 @@ function Test-TargetResource
         [string] $Name,
 
         # Name of driver
-        [parameter(Mandatory)]
         [string] $DriverName,
 
         # IP address of printer
-        [parameter(Mandatory)]
         [string] $PrinterIP,
 
         # Name of printer port
