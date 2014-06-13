@@ -16,7 +16,7 @@ function Get-TargetResource
     $printer = Get-WmiObject Win32_Printer | Where-Object{$_.Name -eq $Name}	
     if($printer){
        return @{
-            Name = $printer.$Name
+            Name = $printer.Name
             DriverName = $printer.DriverName
             PrinterIP = $printer.PortName
             PortName = $printer.PortName
@@ -58,7 +58,7 @@ function Set-TargetResource
         [Boolean] $isShared=$false,
 
         # Name of shared printer
-        [string] $ShareName,
+        [string] $ShareName = "",
 
         # Location of printer
         [string] $Location="",
@@ -88,25 +88,31 @@ function Set-TargetResource
         }                
         $port.HostAddress= $PrinterIP
         Write-Verbose "Saving changes to printer port: $PortName"
-        $port.Put()
+        $port.Put() | Out-Null
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            $print = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
+            $printer = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
         }
 
-        $print.drivername = $DriverName
-        $print.PortName = $PortName
+        $printer.DriverName = $DriverName
+        $printer.PortName = $PortName
         if($isShared){
-            $print.Shared = $isShared
-            $print.Sharename = $ShareName
+            $printer.Shared = $isShared
+            $printer.Sharename = $ShareName
         }
-        $print.Location = $Location
-        $print.Comment = $Comment
-        $print.DeviceID = $DeviceID
+        $printer.Location = $Location
+        $printer.Comment = $Comment
+
+        # Use name for DeviceID if not defined
+        if($DeviceID -eq $null -or $DeviceID -eq ""){
+            $printer.DeviceID = $Name
+        }else{
+            $printer.DeviceID = $DeviceID
+        }
 
         Write-Verbose "Saving changes to printer: $Name"
-        $print.Put()       
+        $printer.Put() | Out-Null      
     }
     else #Absent
     {
@@ -144,7 +150,7 @@ function Test-TargetResource
         [Boolean] $isShared=$false,
 
         # Name of shared printer
-        [string] $ShareName,
+        [string] $ShareName="",
 
         # Location of printer
         [string] $Location="",
@@ -159,7 +165,7 @@ function Test-TargetResource
 		[ValidateSet("Present","Absent")]
 		[String]$Ensure = "Present"
 	)
-    
+
     Write-Verbose "Checking for printer: $Name"
     $printer = Get-TargetResource -Name $Name
 
@@ -167,13 +173,49 @@ function Test-TargetResource
         if($printer -eq $null) { return $false}
 
         Write-Verbose "Printer exists, validating other values"
-        if($printer.DriverName -ne  $DriverName){ return $false}
-        if($printer.PortName -ne $PortName){return $false}
-        if($printer.isShared -ne $isShared){return $false}
-        if($printer.ShareName -ne $ShareName){return $false}
-        if($printer.Location -ne $Location){return $false}
-        if($printer.Comment -ne $Comment){return $false}
-        if($printer.DeviceID -ne $DeviceID){return $false}
+        if($printer.DriverName -ne  $DriverName){ 
+            Write-Verbose "DriveName does not match"
+            return $false
+        }
+        if($printer.PortName -ne $PortName){
+            Write-Verbose "PortName does not match"
+            return $false
+        }
+        if($printer.isShared -ne $isShared){
+            Write-Verbose "Shared does not match"
+            return $false
+        }
+
+        # Only check the share name if the printer is shared
+        if($printer.ShareName -ne $ShareName -and $printer.isShared -eq $true ){
+            Write-Verbose "ShareName does not match"
+            if($printer.ShareName -eq $null -and $ShareName -eq ""){
+                Write-Verbose "Null or empty value exception"
+            }else{
+                return $false
+            }
+        }
+        if($printer.Location -ne $Location){
+            Write-Verbose "Location does not match"
+            if($printer.Location -eq $null -and $Location -eq ""){
+                Write-Verbose "Null or empty value exception"
+            }else{
+                return $false
+            }
+        }
+        if($printer.Comment -ne $Comment){
+            Write-Verbose "Comment does not match"
+            if($printer.Comment -eq $null -and $Comment -eq ""){
+                Write-Verbose "Null or empty value exception"
+            }else{
+                return $false
+            }
+            
+        }
+        if($printer.DeviceID -ne $DeviceID){
+            Write-Verbose "DeviceID does not match"
+            return $false
+        }
 
         # at this point, everything matches
         Write-Verbose "Passed all validation checks"
