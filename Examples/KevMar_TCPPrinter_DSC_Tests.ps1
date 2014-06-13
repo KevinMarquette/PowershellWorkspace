@@ -38,7 +38,7 @@ Configuration ConfigExample
             Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false
-            ShareName  = ""
+            ShareName  = "TestShare"
             Ensure     = "Present"
        }
    }

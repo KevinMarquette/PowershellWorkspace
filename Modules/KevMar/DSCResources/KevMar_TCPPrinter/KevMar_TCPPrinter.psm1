@@ -98,13 +98,13 @@ function Set-TargetResource
             $port.Name= $PortName            
         }                
         $port.HostAddress= $PrinterIP
+
         Write-Verbose "Saving changes to printer port: $PortName"
         $verbose = $port.Put()
         Write-Verbose $verbose
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            #$printer = ([WMICLASS]"Win32_Printer").createInstance()
             New-Printer $Name $PortName $DriverName
 
             # retreive printer object we just created
@@ -186,6 +186,16 @@ function Test-TargetResource
 		[ValidateSet("Present","Absent")]
 		[String]$Ensure = "Present"
 	)
+
+    # Generate portname from IP address if not defines
+    if($PortName -eq $null -or $PortName -eq ""){
+        $PortName = "IP_$PrinterIP"
+    }
+
+    # Use name for DeviceID if not defined
+    if($DeviceID -eq $null -or $DeviceID -eq ""){
+        $DeviceID = $Name
+    }
 
     Write-Verbose "Checking for printer: $Name"
     $printer = Get-TargetResource -Name $Name
@@ -336,7 +346,7 @@ using System;
 "@
     Add-Type -TypeDefinition $source 
 
-    Write-Verbose "Calling C# module to add printer"
+    Write-Verbose "Calling custom C# module to add printer"
     $result = [KevMar.PrintSpooler]::NewPrinter(  $printerName, $portname, $driverName)
     Write-Verbose "KevMar.PrintSpooler::NewPrinter result: $result"
 
