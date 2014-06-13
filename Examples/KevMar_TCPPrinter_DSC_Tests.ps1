@@ -18,7 +18,6 @@ Set-TargetResource @printer -Verbose
 
 Set-TargetResource -Name "EPSON NX430 Series" -Ensure Absent -Verbose
 
-Get-WmiObject win32_printer | where name -eq $printer.Name | fl *
 
 Configuration ConfigExample
 {
@@ -30,8 +29,8 @@ Configuration ConfigExample
             Name       =  "EPSON NX430 Series"
             DeviceID   =  "EPSON NX430 Series"
             DriverName =  "EPSON NX430 Series"
-            PortName   =  "10.112.11.113"
-            PrinterIP  =  "10.112.11.113"
+            PortName   =  "10.112.11.114"
+            PrinterIP  =  "10.112.11.114"
             Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false
@@ -45,8 +44,3 @@ ConfigExample
 
 Start-DscConfiguration -Wait -Verbose -Path .\ConfigExample
 
-
-$port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
-
-$port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
-            

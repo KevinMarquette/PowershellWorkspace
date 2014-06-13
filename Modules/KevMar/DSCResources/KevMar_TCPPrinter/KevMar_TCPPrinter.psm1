@@ -110,9 +110,20 @@ function Set-TargetResource
             $printer.DeviceID = $DeviceID
         }
 
-        Write-Verbose "Saving changes to printer: $Name"
-        $verbose = $printer.Put()
-        Write-Verbose $verbose 
+       
+        try
+        {
+           Write-Verbose "Saving changes to printer: $Name"
+            $verbose = $printer.Put()
+            Write-Verbose $verbose   
+        }
+        catch [Exception]
+        {
+            Write-Verbose $_.Exception
+            Throw $_.Exception.Message
+        }
+      
+      
     }
     else #Absent
     {
