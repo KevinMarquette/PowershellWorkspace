@@ -72,7 +72,6 @@ function Set-TargetResource
 		[ValidateSet("Present","Absent")]
 		[String]$Ensure = "Present"
 	)
-
     $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
 
     if($Ensure -eq "Present"){
