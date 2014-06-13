@@ -75,6 +75,8 @@ function Set-TargetResource
     $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
 
     if($Ensure -eq "Present"){
+
+        # Check for and create/update printer port first
         $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
         
         if($port -eq $null){
@@ -96,8 +98,9 @@ function Set-TargetResource
 
         $printer.DriverName = $DriverName
         $printer.PortName = $PortName
-        if($isShared){
-            $printer.Shared = $isShared
+        $printer.Shared = $isShared
+
+        if($isShared -eq $true){
             $printer.Sharename = $ShareName
         }
         $printer.Location = $Location
@@ -109,7 +112,6 @@ function Set-TargetResource
         }else{
             $printer.DeviceID = $DeviceID
         }
-
        
         try
         {
