@@ -29,8 +29,8 @@ Configuration ConfigExample
             Name       =  "EPSON NX430 Series"
             DeviceID   =  "EPSON NX430 Series"
             DriverName =  "EPSON NX430 Series"
-            PortName   =  "10.112.11.113"
-            PrinterIP  =  "10.112.11.113"
+            PortName   =  "10.112.11.112"
+            PrinterIP  =  "10.112.11.112"
             Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false

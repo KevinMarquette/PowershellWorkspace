@@ -84,7 +84,7 @@ function Set-TargetResource
             $port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
             $port.Protocol=1
             $port.SNMPEnabled=$false
-            $port.Name= $Portname            
+            $port.Name= $PortName            
         }                
         $port.HostAddress= $PrinterIP
         Write-Verbose "Saving changes to printer port: $PortName"
@@ -93,7 +93,11 @@ function Set-TargetResource
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            $printer = ([WMICLASS]"Win32_Printer").createInstance()
+            #$printer = ([WMICLASS]"Win32_Printer").createInstance()
+            New-Printer $Name $PortName $DriverName
+
+            # retreive printer object we just created
+            $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
         }
 
         $printer.DriverName = $DriverName
@@ -115,11 +119,8 @@ function Set-TargetResource
        
         try
         {
-           Write-Verbose "Saving changes to printer: $Name"
-            $putOptions = new-Object System.Management.PutOptions
-            $putOptions.Type = [System.Management.PutType]::CreateOnly;
-
-            $verbose = $printer.PsBase.Put($putOptions )
+            Write-Verbose "Saving changes to printer: $Name"
+            $verbose = $printer.Put( )
             Write-Verbose $verbose   
         }
         catch [Exception]
@@ -246,7 +247,95 @@ function Test-TargetResource
     return $false
 }
 
+function New-Printer{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True,Position=0)]
+        [string]$printerName,
 
+        [Parameter(Mandatory=$True,Position=1)]
+        [string]$portName,
+
+        [Parameter(Mandatory=$True,Position=2)]
+        [string]$driverName
+    )
+    
+    Write-Verbose "New-Printer('$printerName','$portName','$driverName')"
+
+    $source = @"
+using System;
+  using System.Collections.Generic;
+  using System.Linq;
+  using System.Text;
+  using System.Runtime.InteropServices;
+
+  namespace KevMar
+  {
+    public class PrintSpooler
+    {
+      [DllImport("winspool.drv", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall,     SetLastError = true)]
+      static extern int AddPrinter(string pName, uint Level, [In] ref PRINTER_INFO_2 pPrinter);
+
+      [DllImport("winspool.drv")]
+      static extern int ClosePrinter(int hPrinter);
+
+      public static int NewPrinter(string printerName, string portName, string driverName){
+        
+        PRINTER_INFO_2 pInfo = new PRINTER_INFO_2();
+        int hPrt;
+        int iError;
+      
+        pInfo.pPrinterName = printerName;
+        pInfo.pPortName = portName;
+        pInfo.pDriverName = driverName;
+        pInfo.pPrintProcessor = "WinPrint";
+
+        hPrt = AddPrinter("", 2, ref pInfo);
+        if (hPrt == 0){
+            iError = Marshal.GetLastWin32Error();
+            return iError;
+        }else{
+             ClosePrinter(hPrt);
+        }
+        return 0;
+        } 
+
+      }
+
+      [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+      public struct PRINTER_INFO_2
+      {
+        public string pServerName;
+        public string pPrinterName;
+        public string pShareName;
+        public string pPortName;
+        public string pDriverName;
+        public string pComment;
+        public string pLocation;
+        public IntPtr pDevMode;
+        public string pSepFile;
+        public string pPrintProcessor;
+        public string pDatatype;
+        public string pParameters;
+        public IntPtr pSecurityDescriptor;
+        public uint Attributes;
+        public uint Priority;
+        public uint DefaultPriority;
+        public uint StartTime;
+        public uint UntilTime;
+        public uint Status;
+        public uint cJobs;
+        public uint AveragePPM;
+     }
+  }
+"@
+    Add-Type -TypeDefinition $source 
+
+    Write-Verbose "Calling C# module to add printer"
+    $result = [KevMar.PrintSpooler]::NewPrinter(  $printerName, $portname, $driverName)
+    Write-Verbose "KevMar.PrintSpooler::NewPrinter result: $result"
+
+}
 
 Export-ModuleMember -Function *-TargetResource
 
