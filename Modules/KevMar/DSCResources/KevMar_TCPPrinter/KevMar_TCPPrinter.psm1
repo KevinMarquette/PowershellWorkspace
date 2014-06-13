@@ -115,8 +115,6 @@ function Set-TargetResource
     else #Absent
     {
         Write-Verbose "Removing Printer: $name"
-        $printer.Pause()
-        $printer.CancelAllJobs()
         $printer.Delete()
     }
 }

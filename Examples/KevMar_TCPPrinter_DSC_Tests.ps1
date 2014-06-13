@@ -20,3 +20,27 @@ Set-TargetResource -Name "EPSON NX430 Series" -Ensure Absent -Verbose
 
 Get-WmiObject win32_printer | where name -eq $printer.Name | fl *
 
+Configuration ConfigExample
+{
+   Import-DscResource -ModuleName KevMar
+   Node localhost
+   {
+       TCPPrinter EpsonPrinter
+       {
+            Name       =  "EPSON NX430 Series"
+            DeviceID   =  "EPSON NX430 Series"
+            DriverName =  "EPSON NX430 Series"
+            PortName   =  "10.112.11.113"
+            PrinterIP  =  "10.112.11.113"
+            Comment    =  "Comment" 
+            Location   =  "Location"
+            isShared   =  $false
+            ShareName  = "ShareName"
+            Ensure     = "Absent"
+       }
+   }
+}
+
+ConfigExample
+
+Start-DscConfiguration -Wait -Verbose -Path .\ConfigExample
