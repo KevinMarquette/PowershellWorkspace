@@ -79,18 +79,19 @@ function Set-TargetResource
         
         if($port -eq $null){
             Write-Verbose "Creating new printer port"
-            $port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
+            $port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
             $port.Protocol=1
             $port.SNMPEnabled=$false
             $port.Name= $Portname            
         }                
         $port.HostAddress= $PrinterIP
         Write-Verbose "Saving changes to printer port: $PortName"
-        $port.Put() | Out-Null
+        $verbose = $port.Put()
+        Write-Verbose $verbose
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            $printer = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_Printer").createInstance()
+            $printer = ([WMICLASS]"Win32_Printer").createInstance()
         }
 
         $printer.DriverName = $DriverName
@@ -110,7 +111,8 @@ function Set-TargetResource
         }
 
         Write-Verbose "Saving changes to printer: $Name"
-        $printer.Put() | Out-Null      
+        $verbose = $printer.Put()
+        Write-Verbose $verbose 
     }
     else #Absent
     {

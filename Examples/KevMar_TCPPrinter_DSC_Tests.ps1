@@ -32,11 +32,11 @@ Configuration ConfigExample
             DriverName =  "EPSON NX430 Series"
             PortName   =  "10.112.11.113"
             PrinterIP  =  "10.112.11.113"
-            Comment    =  "Comment" 
+            Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false
             ShareName  = "ShareName"
-            Ensure     = "Absent"
+            Ensure     = "Present"
        }
    }
 }
@@ -44,3 +44,9 @@ Configuration ConfigExample
 ConfigExample
 
 Start-DscConfiguration -Wait -Verbose -Path .\ConfigExample
+
+
+$port = ([WMICLASS]"\\localhost\ROOT\cimv2:Win32_TCPIPPrinterPort").createInstance()
+
+$port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
+            
