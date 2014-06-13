@@ -72,6 +72,17 @@ function Set-TargetResource
 		[ValidateSet("Present","Absent")]
 		[String]$Ensure = "Present"
 	)
+
+    # Generate portname from IP address if not defines
+    if($PortName -eq $null -or $PortName -eq ""){
+        $PortName = "IP_$PrinterIP"
+    }
+
+    # Use name for DeviceID if not defined
+    if($DeviceID -eq $null -or $DeviceID -eq ""){
+        $DeviceID = $Name
+    }
+
     $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
 
     if($Ensure -eq "Present"){
@@ -100,21 +111,16 @@ function Set-TargetResource
             $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
         }
 
+
         $printer.DriverName = $DriverName
         $printer.PortName = $PortName
+        $printer.Location = $Location
+        $printer.Comment = $Comment
+        $printer.DeviceID = $DeviceID
         $printer.Shared = $isShared
 
         if($isShared -eq $true){
             $printer.Sharename = $ShareName
-        }
-        $printer.Location = $Location
-        $printer.Comment = $Comment
-
-        # Use name for DeviceID if not defined
-        if($DeviceID -eq $null -or $DeviceID -eq ""){
-            $printer.DeviceID = $Name
-        }else{
-            $printer.DeviceID = $DeviceID
         }
        
         try
@@ -126,7 +132,6 @@ function Set-TargetResource
         catch [Exception]
         {
             Write-Verbose $_.Exception
-            Write-Verbose "Test"
             Throw $_.Exception.Message
            
             

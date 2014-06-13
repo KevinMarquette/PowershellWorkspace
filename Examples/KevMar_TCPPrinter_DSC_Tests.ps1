@@ -1,4 +1,8 @@
-﻿$printer = @{
+﻿<#
+This file is full off one off commands that I use to test various parts of the module
+#>
+
+$printer = @{
     portname   =  "10.112.11.113"                                                        
     DriverName =  "EPSON NX430 Series"                                                   
     PrinterIP  =  "10.112.11.113"                                                        
@@ -29,8 +33,8 @@ Configuration ConfigExample
             Name       =  "EPSON NX430 Series"
             DeviceID   =  "EPSON NX430 Series"
             DriverName =  "EPSON NX430 Series"
-            PortName   =  "10.112.11.112"
-            PrinterIP  =  "10.112.11.112"
+            PortName   =  "10.112.11.113"
+            PrinterIP  =  "10.112.11.113"
             Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false
