@@ -44,3 +44,8 @@ ConfigExample
 
 Start-DscConfiguration -Wait -Verbose -Path .\ConfigExample
 
+Cscript c:\windows\System32\Printing_Admin_Scripts\en-US\Prnmngr.vbs -a -p $printer.Name -m $printer.drivername -r $printer.PortName
+
+Cscript Prnmngr.vbs -a -p $printer.Name -m $printer.drivername -r $printer.PortName
+
+

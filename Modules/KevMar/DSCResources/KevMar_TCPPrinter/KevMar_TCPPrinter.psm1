@@ -116,13 +116,14 @@ function Set-TargetResource
         try
         {
            Write-Verbose "Saving changes to printer: $Name"
-            $verbose = $printer.Put()
+            $verbose = $printer.Put([System.Management.PutOptions] 2 )
             Write-Verbose $verbose   
         }
         catch [Exception]
         {
             Write-Verbose $_.Exception
-            Throw $_.Exception.Message
+            # Throw $_.Exception.Message
+            
         }
       
       
