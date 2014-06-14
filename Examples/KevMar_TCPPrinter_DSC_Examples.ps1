@@ -3,7 +3,7 @@
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-       TCPPrinter EpsonPrinter
+       TcpPrinter EpsonPrinter
        {
             Name       =  "EPSON NX430 Series"
             DeviceID   =  "EPSON NX430 Series"
@@ -30,7 +30,7 @@ Configuration MinConfig
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-       TCPPrinter EpsonPrinter
+       TcpPrinter EpsonPrinter
        {
             Name       =  "EPSON NX430 Series"            
             DriverName =  "EPSON NX430 Series"            
@@ -50,7 +50,7 @@ Configuration RemoveTCPPrinter
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-       TCPPrinter EpsonPrinter
+       TcpPrinter EpsonPrinter
        {
             Name       =  "EPSON NX430 Series"            
             Ensure     =  "Absent"          
