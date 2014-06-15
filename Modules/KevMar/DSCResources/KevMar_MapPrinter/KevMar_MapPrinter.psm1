@@ -13,11 +13,14 @@ function Get-TargetResource
         [string] $Path
 	)
     
-    $printer = Get-WmiObject Win32_Printer | Where-Object{$_.Name -eq $Path}	
+    $Connections = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Connections'
+    Write-Verbose $Connections
+
+    $printer = Get-ChildItem $Connections | ?{$_.GetValue("Printer") -eq $path}
     if($printer){
        Write-Verbose "Printer $path found"
        return @{
-            Name = $printer.Name
+            Name = $path
         }
     } else {
         Write-Verbose "Not found"
