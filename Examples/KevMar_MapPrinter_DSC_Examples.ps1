@@ -3,10 +3,10 @@
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-       MapPrinter EpsonPrinter
+       MapPrinter NetworkPrinter
        {
-            Path       =  '\\localhost\EpsonPrinter'            
-            Ensure     = "Present"
+            Path   =  '\\server\EpsonPrinter'
+            Ensure = "Present"
        }
    }
 }
@@ -15,16 +15,16 @@ ConfigExample
 
 Start-DscConfiguration -Wait -Verbose -Path .\ConfigExample
 
-# Minimal values for config to work
 
+# Minimal values for config to work
 Configuration MinConfig
 {
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-       MapPrinter EpsonPrinter
+       MapPrinter NetworkPrinter
        {
-            Path       =  '\\localhost\EpsonPrinter'            
+            Path = '\\server\EpsonPrinter'
        }
    }
 }
@@ -34,16 +34,15 @@ MinConfig
 Start-DscConfiguration -Wait -Verbose -Path .\MinConfig
 
 # Remove printer
-
 Configuration RemoveMapPrinter
 {
    Import-DscResource -ModuleName KevMar
    Node localhost
    {
-        MapPrinter EpsonPrinter
+       MapPrinter NetworkPrinter
        {
-            Path       =  '\\localhost\EpsonPrinter'            
-            Ensure     = "Absent"
+            Path   =  '\\server\EpsonPrinter'
+            Ensure = "Absent"
        }
    }
 }

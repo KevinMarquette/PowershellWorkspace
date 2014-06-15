@@ -53,7 +53,7 @@ function Set-TargetResource
     else #$Ensure -eq "Absent"
     {
         Write-Verbose "Removing printer $path"
-         rundll32 printui.dll,PrintUIEntry /gd /n$path
+        rundll32 printui.dll,PrintUIEntry /gd /n$path
     }
 }
 
