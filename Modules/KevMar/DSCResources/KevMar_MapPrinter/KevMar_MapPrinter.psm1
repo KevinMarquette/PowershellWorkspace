@@ -48,7 +48,7 @@ function Set-TargetResource
 
     if($Ensure -eq "Present"){     
         Write-Verbose "Adding printer $path"
-        rundll32 printui.dll,PrintUIEntry /ga /n$path /z
+        rundll32 printui.dll,PrintUIEntry /ga /n$path
     } 
     else #$Ensure -eq "Absent"
     {
