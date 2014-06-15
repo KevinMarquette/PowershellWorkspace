@@ -47,7 +47,7 @@ function Set-TargetResource
     } 
     else #$Ensure -eq "Absent"
     {
-         rundll32 printui.dll,PrintUIEntry /da /n$path
+         rundll32 printui.dll,PrintUIEntry /gd /n$path
     }
 }
 
