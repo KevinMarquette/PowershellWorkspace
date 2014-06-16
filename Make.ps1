@@ -5,14 +5,17 @@ Copy-Item .\Modules\KevMar 'C:\Program Files\WindowsPowerShell\Modules\' -Recurs
 ###
 ### find the Process that is hosting the DSC engine
 ###
-$dscProcessID = Get-WmiObject msft_providers | 
+Get-WmiObject msft_providers | 
 Where-Object {$_.provider -like 'dsccore'} | 
-Select-Object -ExpandProperty HostProcessIdentifier 
+Select-Object -ExpandProperty HostProcessIdentifier -OutVariable dscProcessID
 
 ###
 ### Kill it
 ###
 Write-Host "Restarting DSC process"
-Get-Process -Id $dscProcessID | Stop-Process
+if($dscProcessID){
+    Write-Host "  ID $dscProcessID"
+    Get-Process -Id $dscProcessID | Stop-Process
+}else {Write-Host "  No Process"}
 
 Write-Host "Done"

@@ -90,8 +90,8 @@ function Set-TargetResource
 
     if($Ensure -eq "Present"){
 
-        if(isDriverInstalled($DriverName) -eq $false){
-            InstallDriver($DriverName, $DriverInf)
+        if((isDriverInstalled($DriverName)) -eq $false){
+            InstallDriver $DriverName  $DriverInf
         }
         # Check for and create/update printer port first
         $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
@@ -167,6 +167,9 @@ function Test-TargetResource
         # Name of driver
         [string] $DriverName,
 
+        # Install source location
+        [string] $DriverInf,
+
         # IP address of printer
         [string] $PrinterIP,
 
@@ -207,6 +210,14 @@ function Test-TargetResource
     $printer = Get-TargetResource -Name $Name
 
     if($Ensure -eq "Present"){
+
+        # check if driver is installed
+        if((isDriverInstalled $DriverName) -eq $false){
+            Write-Verbose "Driver '$DriverName' not installed"
+            return $false
+        }
+        
+        # check on printer and related properties
         if($printer -eq $null) { return $false}
 
         Write-Verbose "Printer exists, validating other values"
@@ -274,14 +285,14 @@ function isDriverInstalled{
     param([string]$driverName)
 
     Write-Verbose "Checking for Driver: $driverName"
-    $driver = Get-WmiObject Win32_PrinterDriver | Where-Object {$_.name -eq $driverName}
+    $driver = Get-WmiObject Win32_PrinterDriver | Where-Object {$_.name -match $driverName}
 
     if($driver){
         Write-Verbose "  Driver OK"
         return $true
     }
 
-    Write-Verbose "  Driver not installed!!"
+    Write-Verbose "  Driver not installed!!!"
     return $false
 }
 
@@ -312,18 +323,15 @@ function InstallDriver{
         $Driver.Name = $DriverName
         $Driver.InfName = $DriverInf
 
-        try
-        {
-            Write-Verbose "Add Driver to the system"
-            $Result = $Driver.AddPrinterDriver($Driver)
-            Write-Verbose $Result
-
-        }
-        catch [exception]
-        {
-            Write-Verbose $_.Exception
-            Throw $_.Exception.Message
-        }
+        
+            Write-Verbose "Add Driver to $env:computername"
+            # $Result = $Driver.psBase.AddPrinterDriver($Driver)
+            # $result = Invoke-WmiMethod -Class Win32_PrinterDriver -Name AddPrinterDriver -ArgumentList $Driver
+            $result = ([WMICLASS]"Win32_PrinterDriver").AddPrinterDriver($Driver)
+            Write-Verbose $result
+            #rundll32.exe printui.dll,PrintUIEntry /ii /f C:\epson374750eu\E_GF1HKP.INF
+            #RUNDLL32 PRINTUI.DLL, PrintUIEntry /ia /f "$DriverInf" /m “$DriverName”
+            Write-Verbose "Driver installed"
 
     }
     else # Could not find driver inf

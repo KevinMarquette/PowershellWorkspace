@@ -5,9 +5,10 @@
    {
        TcpPrinter EpsonPrinter
        {
-            Name       =  "EPSON NX430 Series"
-            DeviceID   =  "EPSON NX430 Series"
-            DriverName =  "EPSON NX430 Series"
+            Name       =  "EPSON NX420 Series"
+            DeviceID   =  "EPSON NX420 Series"
+            DriverName =  "EPSON NX420 Series"
+            DriverINF  =  "C:\dell\drivers\printer\E_DF1GCA.INF"
             PortName   =  "10.112.11.113"
             PrinterIP  =  "10.112.11.113"
             Comment    =  "Comment"
