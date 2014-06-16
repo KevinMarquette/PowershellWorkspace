@@ -87,15 +87,14 @@ function Set-TargetResource
     }
 
     $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
+    $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
 
     if($Ensure -eq "Present"){
 
         if((isDriverInstalled($DriverName)) -eq $false){
             InstallDriver $DriverName  $DriverInf
         }
-        # Check for and create/update printer port first
-        $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
-
+        
         if($port -eq $null){
             Write-Verbose "Creating new printer port"
             $port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
@@ -149,6 +148,38 @@ function Set-TargetResource
     {
         Write-Verbose "Removing Printer: $name"
         $printer.Delete()
+        
+        # remove unused ports
+        $printersOnPort = Get-WmiObject Win32_Printer | Where-Object{ $_.PortName -eq $PortName }
+        if($printersOnPort -eq $null){
+            Write-Verbose "Removing unused port: $PortName"
+            $port.Delete()
+        }else{
+            Write-Verbose "Port in use by other printer"
+        }
+
+        # remove unused driver only if inf was previously specified
+        if($DriverInf -ne $null -and $DriverInf -ne ""){
+
+            # Only delete the driver if not used by other printers
+            $printersWithDriver = Get-WmiObject Win32_Printer | Where-Object{ $_.DriverName -eq $DriverName }
+            if($printersWithDriver -eq $null){
+                Write-Verbose "Removing unused driver: $DriverName"
+                $driver = Get-WmiObject Win32_PrinterDriver | Where-Object {$_.Name -match $DriverName}
+                
+                try
+                {
+                    $driver.Delete()
+                } 
+                catch [exception] { }
+
+            }else{
+                Write-Verbose "Driver in use by other printer"
+            }
+        } # end unused driver removal
+        else {Write-Verbose "DriverInf not defined, so skipping driver removal"}
+
+        Write-Verbose "Clean up finished"
     }
 }
 
@@ -201,7 +232,7 @@ function Test-TargetResource
         $PortName = "IP_$PrinterIP"
     }
 
-    # Use name for DeviceID if not defined
+    # Use name for DeviceID when not defined
     if($DeviceID -eq $null -or $DeviceID -eq ""){
         $DeviceID = $Name
     }

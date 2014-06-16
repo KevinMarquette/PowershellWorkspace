@@ -9,8 +9,8 @@
             DeviceID   =  "EPSON NX420 Series"
             DriverName =  "EPSON NX420 Series"
             DriverINF  =  "C:\dell\drivers\printer\E_DF1GCA.INF"
-            PortName   =  "10.112.11.113"
-            PrinterIP  =  "10.112.11.113"
+            PortName   =  "10.112.11.112"
+            PrinterIP  =  "10.112.11.112"
             Comment    =  "Comment"
             Location   =  "Location"
             isShared   =  $false
