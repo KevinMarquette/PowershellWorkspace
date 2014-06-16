@@ -47,6 +47,9 @@ function Set-TargetResource
         # Name of driver
         [string] $DriverName,
 
+        # Install source location
+        [string] $DriverInf,
+
         # IP address of printer
         [string] $PrinterIP,
 
@@ -87,9 +90,12 @@ function Set-TargetResource
 
     if($Ensure -eq "Present"){
 
+        if(isDriverInstalled($DriverName) -eq $false){
+            InstallDriver($DriverName, $DriverInf)
+        }
         # Check for and create/update printer port first
         $port = Get-WmiObject Win32_TCPIPPrinterPort | Where-Object{ $_.Name -eq $PortName }
-        
+
         if($port -eq $null){
             Write-Verbose "Creating new printer port"
             $port = ([WMICLASS]"Win32_TCPIPPrinterPort").createInstance()
@@ -105,7 +111,7 @@ function Set-TargetResource
 
         if($printer -eq $null){
             Write-Verbose "Printer does not exist, creating new one."
-            New-Printer $Name $PortName $DriverName
+            AddPrinter $Name $PortName $DriverName
 
             # retreive printer object we just created
             $printer = Get-WmiObject Win32_Printer | Where-Object{ $_.Name -eq $Name }
@@ -262,7 +268,73 @@ function Test-TargetResource
     return $false
 }
 
-function New-Printer{
+# Check to see if the driver is installed
+function isDriverInstalled{
+    [CmdletBinding()]
+    param([string]$driverName)
+
+    Write-Verbose "Checking for Driver: $driverName"
+    $driver = Get-WmiObject Win32_PrinterDriver | Where-Object {$_.name -eq $driverName}
+
+    if($driver){
+        Write-Verbose "  Driver OK"
+        return $true
+    }
+
+    Write-Verbose "  Driver not installed!!"
+    return $false
+}
+
+function InstallDriver{
+    [CmdletBinding()]
+    param(
+
+    # Name of driver
+    [Parameter(Mandatory=$True,Position=0)]
+    [string]$DriverName,
+
+    # Location of inf for installation of driver
+    [Parameter(Mandatory=$True,Position=1)]
+    [string]$DriverInf
+    )
+
+    if($DriverInf -eq $null -or $DriverInf -eq ""){
+        Write-Verbose "DriverInf is undefined, required to install this driver"
+        throw "DriverInf is undefined, required to install this driver"
+    }
+
+    Write-Verbose "Installing driver from $DriverInf"
+    if(Test-Path($DriverInf)){
+        Write-Verbose "  Location OK"
+
+        Write-Verbose "Create Win32_PrinterDriver instance"
+        $Driver = ([WMICLASS]"Win32_PrinterDriver").createInstance()
+        $Driver.Name = $DriverName
+        $Driver.InfName = $DriverInf
+
+        try
+        {
+            Write-Verbose "Add Driver to the system"
+            $Result = $Driver.AddPrinterDriver($Driver)
+            Write-Verbose $Result
+
+        }
+        catch [exception]
+        {
+            Write-Verbose $_.Exception
+            Throw $_.Exception.Message
+        }
+
+    }
+    else # Could not find driver inf
+    {
+        Write-Verbose "Access Denied or file does not exist: $DriverInf"
+        Throw "Unable to find or access $DriverInf"
+    }
+    Write-Verbose "Done with driver: $DriverName"
+}
+
+function AddPrinter{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True,Position=0)]
@@ -299,7 +371,7 @@ using System;
         PRINTER_INFO_2 pInfo = new PRINTER_INFO_2();
         int hPrt;
         int iError;
-      
+
         pInfo.pPrinterName = printerName;
         pInfo.pPortName = portName;
         pInfo.pDriverName = driverName;
@@ -344,7 +416,7 @@ using System;
      }
   }
 "@
-    Add-Type -TypeDefinition $source 
+    Add-Type -TypeDefinition $source
 
     Write-Verbose "Calling custom C# module to add printer"
     $result = [KevMar.PrintSpooler]::NewPrinter(  $printerName, $portname, $driverName)
