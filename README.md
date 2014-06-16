@@ -2,9 +2,13 @@ My Blog: http://kevinmarquette.blogspot.com/
 
 This is my first git repo. Using it as a place to store various script and modules that I create in my free time.
 
+
+DSC Resource KevMar_TcpPrinter
+
+DSC Resource KevMar_MapPrinter
+
 DSC Resource KevMar_WindowsUpdate
 
-DSC Resource KevMar_TCPPrinter
 
 
 Modules should be copied into c:\program files\WindowsPowershell
