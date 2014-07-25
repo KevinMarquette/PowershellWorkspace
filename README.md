@@ -17,23 +17,9 @@ Changes in v1.0.2
     Will remove the driver only if the DriverInf is defined and the removed printer was the last one using it
 
 
-
-
 Modules should be copied into c:\program files\WindowsPowershell
 .\Make.ps1 does this on my machine
 
 Notes to self:
-
-git pull
-
-
-git status
-git diff
-
-git add -A
-
-git commit -m -a "Commit message"
-
-git push
 
 http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging
