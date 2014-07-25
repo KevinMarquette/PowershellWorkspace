@@ -1,6 +1,16 @@
-﻿# Deploys modules to the local system
-Write-Host "Copying .\Modules\KevMar to 'C:\Program Files\WindowsPowerShell\Modules\'"
-Copy-Item .\Modules\KevMar 'C:\Program Files\WindowsPowerShell\Modules\' -Recurse -Force
+﻿# Deploys system modules to the local system
+Write-Host "Cleaning 'C:\Program Files\WindowsPowerShell\Modules\KevMar System'"
+Remove-Item "C:\Program Files\WindowsPowerShell\Modules\KevMar System" -Recurse -Force -ea 0
+Write-Host "Copying '.\Modules\KevMar System' to 'C:\Program Files\WindowsPowerShell\Modules\'"
+Copy-Item ".\Modules\KevMar System" 'C:\Program Files\WindowsPowerShell\Modules\' -Recurse -Force
+
+# Deploys user modules to the local system
+$modulePath = Split-Path $profile
+Write-Host "Cleaning '$modulePath\Modules\KevMar User'"
+Remove-Item "$modulePath\Modules\KevMar User" -Recurse -Force -ea 0
+Write-Host "Copying '.\Modules\KevMar User' to '$modulePath\Modules\'"
+Copy-Item ".\Modules\KevMar User" "$modulePath\Modules\" -Recurse -Force
+
 
 ###
 ### find the Process that is hosting the DSC engine
