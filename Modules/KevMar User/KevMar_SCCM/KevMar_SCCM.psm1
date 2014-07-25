@@ -16,7 +16,7 @@ function Get-SccmCollection{
     Process
     {
         Write-Verbose "Checking sms_collection in namespace root\sms\site_$site on $SccmServer"
-        Get-WmiObject -Namespace 'root\sms\site_$site' -class 'sms_collection' -ComputerName $SccmServer | 
+        Get-WmiObject -Namespace "root\sms\site_$site" -class 'sms_collection' -ComputerName $SccmServer | 
             Select-Object Name, CollectionID, MemberCount, LimitToCollectionName | 
             Where-Object{$_.name -imatch $Name -or $Name -eq ""}       
     }
@@ -39,7 +39,7 @@ function Get-SccmComputer{
     Process
     {
         Write-Verbose "Checking sms_cm_res_coll_$CollectionID in namespace root\sms\site_$site on $SccmServer"
-        get-wmiobject -namespace 'root\sms\site_$site' -query "select * from sms_cm_res_coll_$CollectionID" -ComputerName  $SccmServer | 
+        get-wmiobject -namespace "root\sms\site_$site" -query "select * from sms_cm_res_coll_$CollectionID" -ComputerName  $SccmServer | 
             Select-Object @{Name="ComputerName";Expression={$_.Name}} 
     }
 }
