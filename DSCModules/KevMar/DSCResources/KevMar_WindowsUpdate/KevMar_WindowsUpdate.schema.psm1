@@ -81,7 +81,8 @@ Configuration KevMar_WindowsUpdate
      
     }
     
-    switch($ScheduledInstallDay){
+    switch($ScheduledInstallDay)
+    {
         "Every day" {$ScheduledInstallDayValue=0}    
         "Sunday" {$ScheduledInstallDayValue=1}  
         "Monday" {$ScheduledInstallDayValue=2}  
@@ -104,6 +105,7 @@ Configuration KevMar_WindowsUpdate
             ValueType = "Dword"
         }
     }
+
     Registry WindowsUpdateNoAutoUpdate
     {       
         Ensure = "Present"
@@ -114,7 +116,8 @@ Configuration KevMar_WindowsUpdate
     }
     
     
-    if ($UseWUServer -eq $false) {
+    if ($UseWUServer -eq $false)
+    {
         Registry WindowsUpdateUseWUServer
         {       
             Ensure = "Present"
@@ -123,12 +126,14 @@ Configuration KevMar_WindowsUpdate
             ValueData = "0"
             ValueType = "Dword"
         }
+
         Registry WindowsUpdateWUServer
         {       
             Ensure = "Absent"
             Key = $WUKey
             ValueName = "WUServer"
         }
+
         Registry WindowsUpdateWUStatusServer
         {       
             Ensure = "Absent"
@@ -136,7 +141,9 @@ Configuration KevMar_WindowsUpdate
             ValueName = "WUStatusServer"
         }
     } #WSUS settings
-    elseif($UseWUServer -eq $true -or $WUServer){
+
+    elseif($UseWUServer -eq $true -or $WUServer)
+    {
         Registry WindowsUpdateUseWUServer
         {       
             Ensure = "Present"
@@ -145,6 +152,7 @@ Configuration KevMar_WindowsUpdate
             ValueData = [string] [int]$true
             ValueType = "Dword"
         }
+
         Registry WindowsUpdateWUServer
         {       
             Ensure = "Present"
@@ -153,6 +161,7 @@ Configuration KevMar_WindowsUpdate
             ValueData = [string] $WUServer
             ValueType = "String"
         }
+
         Registry WindowsUpdateWUStatusServer
         {       
             Ensure = "Present"
@@ -162,7 +171,9 @@ Configuration KevMar_WindowsUpdate
             ValueType = "String"
         }
     }
-    if($ScheduledInstallDay -ne $null){
+
+    if($ScheduledInstallDay -ne $null)
+    {
         Registry WindowsUpdateScheduledInstallDay
         {       
             Ensure = "Present"
@@ -172,7 +183,9 @@ Configuration KevMar_WindowsUpdate
             ValueType = "Dword"
         }
     }
-    if($ScheduledInstallTime -ne $null){
+
+    if($ScheduledInstallTime -ne $null)
+    {
         Registry WindowsUpdateInstallTime
         {       
             Ensure = "Present"
@@ -182,7 +195,9 @@ Configuration KevMar_WindowsUpdate
             ValueType = "Dword"
         }
     }
-    if($TargetGroup -ne $null){
+
+    if($TargetGroup -ne $null)
+    {
         Registry WindowsUpdateTargetGroup
         {       
             Ensure = "Present"
@@ -202,4 +217,7 @@ Configuration KevMar_WindowsUpdate
     }
     
 }
+
+
+
 

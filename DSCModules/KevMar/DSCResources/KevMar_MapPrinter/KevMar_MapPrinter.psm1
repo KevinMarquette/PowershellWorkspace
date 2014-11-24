@@ -63,6 +63,7 @@ function Set-TargetResource
 function Test-TargetResource
 {
 	[CmdletBinding()]
+    [OutputType([Boolean])]
 	param
 	(	
         # Network path to printer
@@ -95,4 +96,6 @@ function Test-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+
+
 

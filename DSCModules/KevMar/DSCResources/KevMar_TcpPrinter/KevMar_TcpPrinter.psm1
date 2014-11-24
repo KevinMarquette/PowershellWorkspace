@@ -189,6 +189,7 @@ function Set-TargetResource
 function Test-TargetResource
 {
 	[CmdletBinding()]
+    [OutputType([Boolean])]
 	param
 	(	
         # Name of printer
@@ -361,7 +362,7 @@ function InstallDriver{
             $result = ([WMICLASS]"Win32_PrinterDriver").AddPrinterDriver($Driver)
             Write-Verbose $result
             #rundll32.exe printui.dll,PrintUIEntry /ii /f C:\epson374750eu\E_GF1HKP.INF
-            #RUNDLL32 PRINTUI.DLL, PrintUIEntry /ia /f "$DriverInf" /m “$DriverName”
+            #RUNDLL32 PRINTUI.DLL, PrintUIEntry /ia /f "$DriverInf" /m ?$DriverName?
             Write-Verbose "Driver installed"
 
     }
@@ -464,4 +465,6 @@ using System;
 }
 
 Export-ModuleMember -Function *-TargetResource
+
+
 

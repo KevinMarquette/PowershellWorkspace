@@ -1,8 +1,8 @@
 ﻿# Deploys system modules to the local system
-Write-Host "Cleaning 'C:\Program Files\WindowsPowerShell\Modules\KevMar System'"
-Remove-Item "C:\Program Files\WindowsPowerShell\Modules\KevMar System" -Recurse -Force -ea 0
-Write-Host "Copying '.\Modules\KevMar System' to 'C:\Program Files\WindowsPowerShell\Modules\'"
-Copy-Item ".\Modules\KevMar System" 'C:\Program Files\WindowsPowerShell\Modules\' -Recurse -Force
+Write-Host "Cleaning 'C:\Program Files\WindowsPowerShell\Modules\KevMar'"
+Remove-Item "C:\Program Files\WindowsPowerShell\Modules\KevMar" -Recurse -Force -ea 0
+Write-Host "Copying '.\DSCModules\KevMar' to 'C:\Program Files\WindowsPowerShell\Modules\'"
+Copy-Item ".\DSCModules\KevMar" 'C:\Program Files\WindowsPowerShell\Modules\' -Recurse -Force
 
 # Deploys user modules to the local system
 $modulePath = Split-Path $profile
