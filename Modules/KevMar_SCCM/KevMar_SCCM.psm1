@@ -1,45 +1,56 @@
 ﻿
 ## SCCM Scripts ##########################################################
-function Get-SccmCollection{
-    [CmdletBinding()]
-    Param(
-        [Parameter(ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=0)]
+function Get-SccmCollection
+{
+    [cmdletbinding()]
+    param(
+        [Parameter(
+            ValueFromPipeline = $true,
+            Position = 0
+        )]
         [string]
-        $Name="",
+        $Name = "",
+        
         [string]
         $SccmServer = "$env:computername",
+        
         [string]
         $Site = ""
-        )
-    Process
+    )
+    
+    process
     {
         Write-Verbose "Checking sms_collection in namespace root\sms\site_$site on $SccmServer"
-        Get-WmiObject -Namespace "root\sms\site_$site" -class 'sms_collection' -ComputerName $SccmServer | 
+        Get-WMIObject -Namespace "root\sms\site_$site" -Class 'sms_collection' -ComputerName $SccmServer | 
             Select-Object Name, CollectionID, MemberCount, LimitToCollectionName | 
             Where-Object{$_.name -imatch $Name -or $Name -eq ""}       
     }
 }
 
 #List all the computers in a collection
-function Get-SccmComputer{
-[CmdletBinding()]
-    Param(
-        [Parameter(ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=0)]
+function Get-SccmComputer
+{
+    [cmdletbinding()]
+    param(
+        [Parameter(
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 0
+        )]
         [string]
-        $CollectionID="",
+        $CollectionID = "",
+        
         [string]
         $SccmServer = "$env:computername",
+        
         [string]
         $Site = ""
-        )
-    Process
+    )
+    
+    process
     {
         Write-Verbose "Checking sms_cm_res_coll_$CollectionID in namespace root\sms\site_$site on $SccmServer"
-        get-wmiobject -namespace "root\sms\site_$site" -query "select * from sms_cm_res_coll_$CollectionID" -ComputerName  $SccmServer | 
+        Get-WMIObject -Namespace "root\sms\site_$site" -Query "select * from sms_cm_res_coll_$CollectionID" -ComputerName  $SccmServer | 
             Select-Object @{Name="ComputerName";Expression={$_.Name}} 
     }
 }

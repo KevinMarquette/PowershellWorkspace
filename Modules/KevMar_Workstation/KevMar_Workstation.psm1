@@ -1,16 +1,19 @@
 ﻿
 
-function Start-WsusUpdateCheck{
+function Start-WsusUpdateCheck
+{
     wuauclt /Detectnow /ResetAuthorization /ReportNow
 }
 
   # Clear-UnwantedUpdates ##################################
-function Clear-WsusUnwantedUpdates{
-    [CmdletBinding()]
-    Param()
-    Process
+function Clear-WsusUnwantedUpdates
+{
+    [cmdletbinding()]
+    param()
+    
+    process
     {
-        $update = new-object -com Microsoft.update.Session
+        $update = New-Object -com Microsoft.update.Session
         $searcher = $update.CreateUpdateSearcher()
 
         Write-Verbose "Gathering list of updates..."
@@ -23,10 +26,12 @@ function Clear-WsusUnwantedUpdates{
 }
 
 # Windows Updates ##################################
-function Install-WsusUpdates{
-    [CmdletBinding()]
-    Param()
-    Process
+function Install-WsusUpdates
+{
+    [cmdletbinding()]
+    param()
+    
+    process
     {
         if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired")
         {
@@ -38,15 +43,19 @@ function Install-WsusUpdates{
         
             $updateSession = new-object -com Microsoft.update.Session
             $searcher = $updateSession.CreateUpdateSearcher()
+            
             Write-Verbose "Gathering list of updates..."
             $updates = $searcher.Search("IsInstalled=0 And IsHidden=0 And Type='Software'").Updates
        
             $downloader = $updateSession.CreateUpdateDownloader()
             $downloader.Updates = $updates
         
-            if($downloader.Updates.Count -eq "0"){
+            if($downloader.Updates.Count -eq "0")
+            {
                 Write-Verbose "No updates available"
-            }else{
+            }
+            else
+            {
                 $updates | %{Write-Verbose ("Available: {0} {1}" -f $_.Tittle, $_.Description)}
 
                 Write-Verbose "Accepting Eula on all updates"
@@ -56,9 +65,13 @@ function Install-WsusUpdates{
                 $result = $downloader.Download()
                 $installer = $updateSession.CreateUpdateInstaller()
                 $installer.Updates = $downloader.Updates 
-                if($installer.Updates.Count -eq "0"){
+                
+                if($installer.Updates.Count -eq "0")
+                {
                     Write-Verbose "No updates downloaded"
-                }else{
+                }
+                else
+                {
                     Write-Verbose "Installing Updates..."
                 
                     $installer.Install()
@@ -74,31 +87,39 @@ function Install-WsusUpdates{
      }
 }
 
-function Get-ADComputerDetails{
-    [CmdletBinding()]
-    Param(
+function Get-ADComputerDetails
+{
+    [cmdletbinding()]
+    param(
         [Alias("Name")]
-        [Parameter(ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=0)]
+        [Parameter(
+            ValueFromPipeline = $true,
+            Position = 0
+        )]
         [string]
-        $ComputerName="$env:computername")
-    Process{
+        $ComputerName="$env:computername"
+    )
+    
+    process
+    {
         Get-ADComputer $ComputerName -Properties Description,Modified,IPv4Address |
             Select-Object @{Name="ComputerName";Expression={$_.Name}}, Description, Modified, IPv4Address
     }
 }
 
-function Get-LogonUser{
-    [CmdletBinding()]
+function Get-LogonUser
+{
+    [cmdletbinding()]
     param(
-        [Parameter(ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=0)]
+        [Parameter(
+            ValueFromPipeline = $true,
+            Position = 0
+        )]
         [string]
         $computername="$Env:Computername"
     )
-    Process
+    
+    process
     {
         if(Test-Connection -ComputerName $computername -Count 1 -ErrorAction SilentlyContinue){
             Write-Verbose "Checking $Computer ..."
@@ -149,8 +170,8 @@ function Reset-UserProfile{
 
              Write-Verbose "Deleting profiles..."
             $profiles | ForEach-Object{
-                if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($_.LocalPath)","Deleteing Profile")){
-
+                if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($_.LocalPath)","Deleteing Profile"))
+                {
                     Write-Verbose "Deleting $($_.LocalPath)"
                     $_.Delete()
                 }
