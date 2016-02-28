@@ -129,26 +129,31 @@ function Get-LogonUser
             Position = 0
         )]
         [string]
-        $computername="$Env:Computername"
+        $ComputerName="$Env:Computername"
     )
     
     process
     {
-        if(Test-Connection -ComputerName $computername -Count 1 -ErrorAction SilentlyContinue)
+        if(Test-Connection -ComputerName $ComputerName -Count 1 -ErrorAction SilentlyContinue)
         {
-            Write-Verbose "Checking $Computer ..."
-            gwmi Win32_Process  -Filter 'Name="explorer.exe"' -computername $computername |
-              Foreach-Object {
-                $o = $_.GetOwner()
-                $o=$o.Domain + "\" + $o.User
-                $obj = $_ |  Select-Object Name, CreationDate, Owner
-                $obj.Owner = $o
-                $obj.CreationDate = $_.ConvertToDateTime($_.CreationDate)
-                $obj
-            } |
-            Group-Object -Property Owner |
-            Select-Object  @{Name="UserName";Expression={$_.Name}},@{Name="ComputerName";Expression={$computername}}
-        } else {
+            Write-Verbose "Getting processes from $Computer"            
+            $processList = Get-WMIObject Win32_Process  -Filter 'Name="explorer.exe"' -ComputerName $ComputerName
+            
+            foreach ($process in $processList) 
+            {
+                $owner = $process.GetOwner()
+                
+                $userSession = [pscustomobject][ordered]@{
+                    UserName =  $owner.Domain + "\" + $owner.User
+                    CreationDate = $process.ConvertToDateTime($process.CreationDate)
+                    ComputerName = $ComputerName 
+                } 
+                
+                Write-Output $userSession
+            }
+        }
+        else
+        {
             Write-Verbose "$Computer offline"
         }
     }
