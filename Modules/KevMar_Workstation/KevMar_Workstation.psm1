@@ -2,6 +2,8 @@
 
 function Start-WsusUpdateCheck
 {
+    [cmdletbining()]
+    param()
     wuauclt /Detectnow /ResetAuthorization /ReportNow
 }
 
@@ -102,8 +104,19 @@ function Get-ADComputerDetails
     
     process
     {
-        Get-ADComputer $ComputerName -Properties Description,Modified,IPv4Address |
-            Select-Object @{Name="ComputerName";Expression={$_.Name}}, Description, Modified, IPv4Address
+        $computers = Get-ADComputer $ComputerName -Properties Description,Modified,IPv4Address 
+        
+        foreach($node in $computers)
+        {
+            $ADObject = [pscustomobject][ordered]@{
+                ComputerName = $node.Name
+                Description  = Description
+                Modified     = Modified
+                IPv4Address  = IPv4Address
+            }
+            
+            Write-Output $ADObject
+        }
     }
 }
 
@@ -121,7 +134,8 @@ function Get-LogonUser
     
     process
     {
-        if(Test-Connection -ComputerName $computername -Count 1 -ErrorAction SilentlyContinue){
+        if(Test-Connection -ComputerName $computername -Count 1 -ErrorAction SilentlyContinue)
+        {
             Write-Verbose "Checking $Computer ..."
             gwmi Win32_Process  -Filter 'Name="explorer.exe"' -computername $computername |
               Foreach-Object {
@@ -140,55 +154,67 @@ function Get-LogonUser
     }
 }
 
-function Clear-TempFiles(){
+function Clear-TempFiles
+{
+    [cmdletbing()]
+    param()
+    
     ls $env:temp | Remove-Item -Recurse -Force
-    if(Test-Path c:\windows\temp){
+    if(Test-Path c:\windows\temp)
+    {
         ls c:\windows\temp | Remove-Item -Recurse -Force
     }
 }
 
-function Reset-UserProfile{
-    [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
-    Param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=0)]
-        [string]
-        $UserName,
+function Reset-UserProfile
+{
+    [cmdletbinding(SupportsShouldProcess,ConfirmImpact='High')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            Position = 0
+        )]
+        [string]$UserName,
 
         [Parameter()]
         [switch]$Force
-        )
-    Process
+    )
+    
+    process
     {
-        if ($pscmdlet.ShouldProcess("User Profiles", "Delete")){
-            $profiles = Get-WmiObject win32_UserProfile | ?{$_.LocalPath -imatch "c:\\users|c:\\documents"}
+        if ($pscmdlet.ShouldProcess("User Profiles", "Delete"))
+        {
+            $profileList = Get-WmiObject win32_UserProfile | ?{$_.LocalPath -imatch "c:\\users|c:\\documents"}
 
             #filter out the important profiles to save
-            $profiles = $profiles | ?{$_.LocalPath -imatch "$UserName"}
+            $profileList = $profileList | ?{$_.LocalPath -imatch "$UserName"}
 
-             Write-Verbose "Deleting profiles..."
-            $profiles | ForEach-Object{
-                if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($_.LocalPath)","Deleteing Profile"))
+            Write-Verbose "Deleting profiles..."
+            foreach($profile in $profileList) 
+            {
+                if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($profile.LocalPath)","Deleteing Profile"))
                 {
-                    Write-Verbose "Deleting $($_.LocalPath)"
-                    $_.Delete()
+                    Write-Verbose "Deleting $($profile.LocalPath)"
+                    $profile.Delete()
                 }
             }
         }
     }
 }
 
-function Reset-AllUserProfiles(){
-    [CmdletBinding(SupportsShouldProcess,ConfirmImpact='High')]
-    Param(
+function Reset-AllUserProfiles
+{
+    [cmdletbinding(SupportsShouldProcess,ConfirmImpact='High')]
+    param(
         [Parameter()]
         [switch]$Force
-        )
-    Process
+    )
+    
+    process
     {
-        if ($pscmdlet.ShouldProcess("All User Profiles", "Delete")){
+        if ($pscmdlet.ShouldProcess('All User Profiles', 'Delete'))
+        {
 
             $exceptions = "Administrator|admin|public|all users|default|$([Environment]::UserName)"
             Write-Verbose "These profiles will be skipped: $Exceptions"
@@ -198,25 +224,27 @@ function Reset-AllUserProfiles(){
             #filter out the important profiles to save
             $profiles = $profiles | ?{$_.LocalPath -inotmatch  $exceptions}
 
-            Write-Verbose "Deleting all user profiles..."
-            $profiles | ForEach-Object{
-                    if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($_.LocalPath)","Deleteing Profile")){
-
-                        Write-Host "Deleting $($_.LocalPath)"
-                        $_.Delete()
-                    }
+            Write-Verbose "Deleting profiles..."
+            foreach($profile in $profileList) 
+            {
+                if($Force -or $pscmdlet.ShouldContinue("Delete this profile: $($profile.LocalPath)","Deleteing Profile"))
+                {
+                    Write-Verbose "Deleting $($profile.LocalPath)"
+                    $profile.Delete()
                 }
-
+            }
+            
             Write-Verbose "Deleting any profile folders that still exist"
-            ls C:\Users |
-                Where-Object{$_.Name -inotmatch  $exceptions } |
-                ForEach-Object{
-                    if($Force -or $pscmdlet.ShouldContinue("Delete this profile folder: $($_.FullName)","Deleteing Profile")){
-
-                        Write-Verbose "Deleting $($_.FullName)"
-                        Remove-Item -Force -Recurse $_.FullName
-                    }
+            $folderList = ls C:\Users |  Where-Object{$_.Name -inotmatch  $exceptions } 
+            
+            foreach($folder in $folderList)
+            {
+                if($Force -or $pscmdlet.ShouldContinue("Delete this profile folder: $($folder.FullName)","Deleteing Profile"))
+                {
+                    Write-Verbose "Deleting $($folder.FullName)"
+                    Remove-Item -Force -Recurse $folder.FullName
                 }
+            }
         }
     }
 }
