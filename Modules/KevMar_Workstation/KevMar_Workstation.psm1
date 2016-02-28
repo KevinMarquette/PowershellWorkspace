@@ -128,33 +128,38 @@ function Get-LogonUser
             ValueFromPipeline = $true,
             Position = 0
         )]
-        [string]
+        [string[]]
         $ComputerName="$Env:Computername"
     )
     
     process
     {
-        if(Test-Connection -ComputerName $ComputerName -Count 1 -ErrorAction SilentlyContinue)
+        foreach($node in $ComputerName)
         {
-            Write-Verbose "Getting processes from $Computer"            
-            $processList = Get-WMIObject Win32_Process  -Filter 'Name="explorer.exe"' -ComputerName $ComputerName
+            Write-Verbose "Verifying $node is online"
             
-            foreach ($process in $processList) 
+            if(Test-Connection -ComputerName $node -Count 1 -ErrorAction SilentlyContinue)
             {
-                $owner = $process.GetOwner()
+                Write-Verbose "Getting processes from $Computer"            
+                $processList = Get-WMIObject Win32_Process  -Filter 'Name="explorer.exe"' -ComputerName $node
                 
-                $userSession = [pscustomobject][ordered]@{
-                    UserName =  $owner.Domain + "\" + $owner.User
-                    CreationDate = $process.ConvertToDateTime($process.CreationDate)
-                    ComputerName = $ComputerName 
-                } 
-                
-                Write-Output $userSession
+                foreach ($process in $processList) 
+                {
+                    $owner = $process.GetOwner()
+                    
+                    $userSession = [pscustomobject][ordered]@{
+                        UserName =  $owner.Domain + "\" + $owner.User
+                        CreationDate = $process.ConvertToDateTime($process.CreationDate)
+                        ComputerName = $node 
+                    } 
+                    
+                    Write-Output $userSession
+                }
             }
-        }
-        else
-        {
-            Write-Verbose "$Computer offline"
+            else
+            {
+                Write-Verbose "$Computer offline"
+            }
         }
     }
 }
