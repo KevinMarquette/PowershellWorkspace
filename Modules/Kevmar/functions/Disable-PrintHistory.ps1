@@ -8,6 +8,7 @@ function Disable-PrintHistory
     .EXAMPLE
     Disable-PrintHistory
     #>
+    
     [cmdletbinding()]
     param()
 

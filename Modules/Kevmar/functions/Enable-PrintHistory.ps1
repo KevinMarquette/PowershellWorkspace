@@ -9,6 +9,7 @@ function Enable-PrintHistory
     .EXAMPLE
     Enable-PrintHistory
     #>
+    
     [cmdletbinding()]
     param()
 
