@@ -1,5 +1,5 @@
 ﻿# http://technet.microsoft.com/en-us/magazine/hh855069.aspx
-# Don Jon wrote these but I use them in other scripts
+# Don Jones wrote these but I use them in other scripts
 
 function Get-DatabaseData {
     [CmdletBinding()]
