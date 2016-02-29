@@ -1,6 +1,6 @@
 function Start-WsusUpdateCheck
 {
-    [cmdletbining()]
+    [cmdletbinding()]
     param()
     wuauclt /Detectnow /ResetAuthorization /ReportNow
 }
