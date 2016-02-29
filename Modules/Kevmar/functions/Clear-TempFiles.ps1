@@ -1,6 +1,13 @@
-function Clear-TempFiles
+function Remove-TempFiles
 {
-    [cmdletbing()]
+    <#
+    .SYNOPSIS
+    Delete temp files
+    .EXAMPLE
+    Remove-TempFiles    
+    #>
+    
+    [cmdletbinding()]
     param()
     
     ls $env:temp | Remove-Item -Recurse -Force

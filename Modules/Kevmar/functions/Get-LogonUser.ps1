@@ -1,5 +1,14 @@
 function Get-LogonUser
 {
+    <#
+    .SYNOPSIS
+    Identifies the logged on users of a system
+    .EXAMPLE
+    Get-LogonUser -ComputerName workstation
+    .NOTES
+    It enumerates the explorer.exe processes on the system and identifes the owner.
+    #>
+    
     [cmdletbinding()]
     param(
         [Parameter(

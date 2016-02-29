@@ -1,5 +1,12 @@
 function Get-ADComputerDetails
 {
+    <#
+    .SYNOPSIS
+    Gets common details about a computer from AD
+    .EXAMPLE
+    Get-ADComputerDetails -ComputerName workstation   
+    #>
+    
     [cmdletbinding()]
     param(
         [Alias("Name")]

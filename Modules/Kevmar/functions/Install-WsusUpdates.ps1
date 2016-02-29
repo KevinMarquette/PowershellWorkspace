@@ -1,5 +1,12 @@
 function Install-WsusUpdates
 {
+    <#
+    .SYNOPSIS
+    downloads and installs updates from WSUS
+    .EXAMPLE
+    Install-WsusUpdates
+    #>
+    
     [cmdletbinding()]
     param()
     
