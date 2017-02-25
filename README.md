@@ -1,15 +1,4 @@
-My Blog: http://kevinmarquette.blogspot.com/
+My Blog: http://kevinmarquette.github.io
 
-This is my first git repo. Using it as a place to store various script and modules that I create in my free time.
+This is my very first git repo. It contains some of my early work and other odd scripts that I don't have a home for. None of this is published in the PSGallery
 
-Changes in v1.0.2
-  Added DriverInf property
-    Allows you to provide the location to the driver's inf file to be used during printer installation
-  Modified Ensure="Absent"
-    Will remove the printer port if the removed printer was the last one using it
-    Will remove the driver only if the DriverInf is defined and the removed printer was the last one using it
-
-
-Notes to self:
-
-http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging
