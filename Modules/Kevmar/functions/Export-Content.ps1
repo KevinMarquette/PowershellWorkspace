@@ -16,10 +16,8 @@
     [cmdletbinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(
-            Mandatory=$true,
             ValueFromPipeline = $true
         )]
-        [ValidateNotNullOrEmpty()]
         [string[]]
         $Value,
 
